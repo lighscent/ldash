@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import http from 'http';
 import fs from 'fs';
 
-const dockerRequest = (path: string, method: string = 'GET', data?: any) => {
+const dockerRequest = (path: string, method: string = 'GET', data?: Record<string, unknown>) => {
   return new Promise((resolve, reject) => {
     // Check if Docker socket exists
     if (!fs.existsSync('/var/run/docker.sock')) {
@@ -22,7 +22,8 @@ const dockerRequest = (path: string, method: string = 'GET', data?: any) => {
       res.on('data', chunk => body += chunk);
       res.on('end', () => {
         try {
-          resolve(res.statusCode >= 400 ? { error: body } : JSON.parse(body || '{}'));
+          const statusCode = res.statusCode || 500;
+          resolve(statusCode >= 400 ? { error: body } : JSON.parse(body || '{}'));
         } catch {
           resolve(body);
         }
@@ -52,6 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
+    console.error('Docker API error:', error);
     res.status(500).json({ error: 'Docker socket not available or Docker API error' });
   }
 }

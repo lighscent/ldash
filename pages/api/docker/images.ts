@@ -38,6 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const images = await dockerRequest('/images/json');
     res.status(200).json(images);
   } catch (error) {
+    console.error('Docker API error:', error);
     res.status(500).json({ error: 'Docker socket not available or failed to fetch images' });
   }
 }

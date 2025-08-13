@@ -26,6 +26,7 @@ const ImagesPage: React.FC = () => {
         setImages([]);
       }
     } catch (error) {
+      console.error('Failed to fetch images:', error);
       setError('Failed to fetch images');
       setImages([]);
     }

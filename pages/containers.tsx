@@ -29,6 +29,7 @@ const ContainersPage: React.FC = () => {
         setContainers([]);
       }
     } catch (error) {
+      console.error('Failed to fetch containers:', error);
       setError('Failed to fetch containers');
       setContainers([]);
     }
@@ -40,7 +41,7 @@ const ContainersPage: React.FC = () => {
       await fetch(`/api/docker/containers/${id}?action=${action}`, { method: 'POST' });
       fetchContainers();
     } catch (error) {
-      console.error(`Failed to ${action} container`);
+      console.error(`Failed to ${action} container:`, error);
     }
   };
 
