@@ -1,7 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import http from 'http';
+import fs from 'fs';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Check if Docker socket exists
+  if (!fs.existsSync('/var/run/docker.sock')) {
+    return res.status(500).json({ error: 'Docker socket not available' });
+  }
+
   const options = {
     socketPath: '/var/run/docker.sock',
     path: '/info',

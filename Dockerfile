@@ -4,16 +4,18 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files and install ALL dependencies (including dev dependencies for build)
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install
 
 # Copy the rest of the app
 COPY . .
 
-# Build Next.js app (skip during build if no docker socket)
-ENV DOCKER_BUILDKIT=1
+# Build Next.js app
 RUN npm run build
+
+# Remove dev dependencies after build
+RUN npm prune --production
 
 # Expose port 1212
 EXPOSE 1212
