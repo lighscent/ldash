@@ -1,11 +1,14 @@
 # Use official Node.js image
 FROM node:18-alpine
 
-# Copy only package.json first
+# Copy package.json
 COPY package.json ./
-COPY package-lock.json ./
 
-# Install ALL dependencies (including dev dependencies for build)
+# Copy package-lock.json only if it exists
+# (comment out if you don't use it)
+COPY package-lock.json ./ 
+
+# Install dependencies
 RUN npm install
 
 # Copy the rest of the application code
@@ -14,7 +17,7 @@ COPY . .
 # Build Next.js app
 RUN npm run build
 
-# Remove dev dependencies after build to reduce image size
+# Remove dev dependencies after build
 RUN npm prune --production
 
 # Expose port 1212

@@ -5,7 +5,6 @@ services:
     ports:
       - "0.0.0.0:1212:1212"
     volumes:
-      - .:. # Utilise le dossier principal
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - NODE_ENV=production
