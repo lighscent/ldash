@@ -1,9 +1,6 @@
 # Use official Node.js image
 FROM node:18-alpine
 
-# Fail early if package.json is missing
-RUN test -f package.json || (echo "package.json not found in build context" && exit 1)
-
 # Copy only package.json first
 COPY package.json ./
 COPY package-lock.json ./
@@ -23,7 +20,5 @@ RUN npm prune --production
 # Expose port 1212
 EXPOSE 1212
 
-# Run Next.js server
-CMD ["npm", "start"]
 # Run Next.js server
 CMD ["npm", "start"]
