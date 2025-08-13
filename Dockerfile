@@ -4,17 +4,19 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files and install ALL dependencies (including dev dependencies for build)
-COPY package*.json ./
+# Copy package files first for better caching
+COPY package.json package-lock.json* ./
+
+# Install ALL dependencies (including dev dependencies for build)
 RUN npm install
 
-# Copy the rest of the app
+# Copy the rest of the application code
 COPY . .
 
 # Build Next.js app
 RUN npm run build
 
-# Remove dev dependencies after build
+# Remove dev dependencies after build to reduce image size
 RUN npm prune --production
 
 # Expose port 1212
