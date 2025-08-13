@@ -1,0 +1,50 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+import http from 'http';
+
+const dockerRequest = (path: string, method: string = 'GET', data?: any) => {
+  return new Promise((resolve, reject) => {
+    const options = {
+      socketPath: '/var/run/docker.sock',
+      path,
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    };
+
+    const req = http.request(options, res => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => {
+        try {
+          resolve(res.statusCode >= 400 ? { error: body } : JSON.parse(body || '{}'));
+        } catch {
+          resolve(body);
+        }
+      });
+    });
+
+    req.on('error', reject);
+    if (data) req.write(JSON.stringify(data));
+    req.end();
+  });
+};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    switch (req.method) {
+      case 'GET':
+        const containers = await dockerRequest('/containers/json?all=true');
+        res.status(200).json(containers);
+        break;
+      
+      case 'POST':
+        const created = await dockerRequest('/containers/create', 'POST', req.body);
+        res.status(201).json(created);
+        break;
+      
+      default:
+        res.status(405).json({ error: 'Method not allowed' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Docker API error' });
+  }
+}
